@@ -1,8 +1,10 @@
 # Data Sources
 
-data "aws_region" "current" {}
+data "aws_region" "current" {
+}
 
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current" {
+}
 
 data "aws_vpc" "vpc_id" {
   id = var.vpc.create == true ? module.vpc[0].id : var.vpc.id
