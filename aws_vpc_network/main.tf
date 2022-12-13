@@ -84,11 +84,29 @@ module "private_routes" {
   target         = var.create_nat_gateways == true ? module.nat_gateways[count.index].id : null
 }
 module "private_route_table_association" {
-  source    = "../modules/aws_route_table_association"
-  count     = length(var.subnets.private_cidrs)
-  subnet_id = module.private_subnets[count.index].id
-  #  route_table_id = module.private_route_tables[count.index].id
+  source         = "../modules/aws_route_table_association"
+  count          = length(var.subnets.private_cidrs)
+  subnet_id      = module.private_subnets[count.index].id
   route_table_id = element(module.private_route_tables, count.index).id
+}
+
+# DHCP option Sets
+module "dhcp_options" {
+  source       = "../modules/aws_vpc_dhcp_options"
+  for_each     = var.dhcp_options
+  name         = each.key
+  domain_name  = each.value.domain_name
+  dns_servers  = each.value.dns_servers
+  ntp_servers  = each.value.ntp_servers
+  nbns_servers = each.value.nbns_servers
+}
+
+# Associate VPC with DHCP option set
+module "dhcp_options_association" {
+  source          = "../modules/aws_vpc_dhcp_options_association"
+  for_each        = var.vpc.dhcp_option_set != null ? { once = true } : {}
+  dhcp_options_id = module.dhcp_options[var.vpc.dhcp_option_set].id
+  vpc_id          = local.create_vpc == true ? module.vpc[0].id : var.vpc.id
 }
 
 # NAT gateway Elastic IP allocations

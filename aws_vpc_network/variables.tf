@@ -9,6 +9,7 @@ variable "vpc" {
     name             = optional(string)
     region           = string
     cidr_blocks      = optional(list(string))
+    dhcp_option_set  = optional(string)
   })
   default = {
     create           = true
@@ -18,6 +19,7 @@ variable "vpc" {
     name             = "default-vpc"
     region           = "us-east-1"
     cidr_blocks      = ["172.31.0.0/16"]
+    dhcp_option_set  = null
   }
 }
 variable "subnets" {
@@ -184,6 +186,16 @@ variable "network_firewalls" {
   type = map(object({
     policy_arn = string
     subnet_id  = string
+  }))
+  default = {}
+}
+
+variable "dhcp_options" {
+  type = map(object({
+    domain_name  = optional(string)
+    dns_servers  = optional(list(string))
+    ntp_servers  = optional(list(string))
+    nbns_servers = optional(list(string))
   }))
   default = {}
 }
